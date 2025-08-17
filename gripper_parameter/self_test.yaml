@@ -1,0 +1,45 @@
+
+# clearence : 0.005
+
+a_pg : 0.01 # Finger width
+# w_pg : 0.3*space # Internal Safespace Finger width 
+w_pg : 0.0015 # Internal Safespace Finger width 
+v_pg : 0.005 # External Safespace Finger width 
+f_pg : 0.10 # Distance gripper open
+g_pg : 0.02 # Distance gripper close
+h_pg : 0.12 # Gripper base bottom width
+k_pg : 0.005 # Safespace Gripper base bottom width 
+q_pg : 0.08 # Gripper base top width
+r_pg : 0.005 # Safespace Gripper base top width
+
+# y_pg : max(q_pg + 2*r_pg, h_pg + 2*k_pg, f_pg + 2*(a_pg + v_pg)) # Gripper Bounding box max width
+
+b_pg : 0.02 # Gripper area length end
+c_pg : 0.02 # Gripper area to (Safety space of Gripper)length end
+d_pg : 0.005 # Safespace Gripper length
+x_pg : 0.005 # Safespace Gripper end to rubber
+# n_pg : d_pg + c_pg + b_pg # Finger length
+t_pg : 0.065 # Gripper base bottom length
+u_pg : 0.05 # Gripper base top length
+# s_pg : n_pg + t_pg + u_pg + x_pg # Total gripper length
+
+e_pg : 0.04 # Finger depth
+i_pg : 0.005 # Safespace finger depth
+
+z_pg : 0.02 # Gripper area depth
+
+l_pg : 0.12 # Gripper base bottom depth
+m_pg : 0.005 # Safespace gripper base bottom depth
+o_pg : 0.07 # Gripper base top  depth
+p_pg : 0.005 # Safespace gripper base top depth
+
+# j_pg : max(l_pg + 2*m_pg, o_pg + 2*p_pg, e_pg + 2*i_pg)  # Gripper Bounding box max depth
+
+
+ra : 0.2 #width of last robot arm limb
+rb : 0.2 #depth of last robot arm limb
+rc : 0.3 #length of last robot arm limb
+# rd : max(ra,rb) #maximum diameter of last robot arm limb
+re : 0.005 #robot arm diameter clearance
+rf : 0.005 #robot arm length clearance
+rj : 0.0005 #repeatability of robot arm
