@@ -2,69 +2,27 @@ import open3d as o3d
 import numpy as np
 import random
 import copy
-import os
-
 import open3d as o3d
 import numpy as np
 from math import acos, degrees
-from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
-from sklearn.neighbors import NearestNeighbors
-from collections import Counter
-import math
-
-import alphashape
-from shapely.geometry import Point, MultiPoint,Polygon,MultiLineString, MultiPolygon,LineString
+from shapely.geometry import Point,Polygon
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-from scipy.spatial import KDTree,cKDTree
 import cv2
 import itertools
-
-from scipy.spatial import ConvexHull, Delaunay
-from shapely.ops import unary_union, polygonize
-
-import logging, pathlib
+from shapely.ops import unary_union
 import yaml
-
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from shapely.validation import explain_validity, make_valid   # Shapely>=2.0
+from shapely import set_precision
+from shapely.geometry import Polygon, Point
+from shapely.ops import unary_union
 
 
 
-# -------------------- Step 0: Define the gripper ----------------
-class parallel_gripper:
-    def __init__(self):
-        space = 0.005
-        a_pg = 0.01 # Finger width
-        w_pg = 0.3*space # Internal Safespace Finger width 
-        v_pg = space # External Safespace Finger width 
-        f_pg = 0.10 # Distance gripper open
-        g_pg = 0.02 # Distance gripper close
-        h_pg = 0.12 # Gripper base bottom width
-        k_pg = space # Safespace Gripper base bottom width 
-        q_pg = 0.08 # Gripper base top width
-        r_pg = space # Safespace Gripper base top width
+# -------------------- Define the gripper ----------------
 
-        # b_pg = 0.01 # TCP to Finger length end
-        c_pg = 0.04 # TCP to (Safety space of Gripper)length end
-        d_pg = space # Safespace Gripper length
-        x_pg = space # Safespace Gripper end to rubber
-        n_pg = d_pg + c_pg + x_pg # Finger length
-        t_pg = 0.065 # Gripper base bottom length
-        u_pg = 0.05 # Gripper base top length
-        j_pg = c_pg + d_pg + t_pg + u_pg # Gripper length (TCP to Robot)
-        s_pg = j_pg + x_pg # Total gripper length
-
-        e_pg = 0.04 # Finger depth
-        i_pg = space # Safespace finger depth
-        l_pg = 0.06 # Gripper base bottom depth
-        m_pg = space # Safespace gripper base bottom depth
-        o_pg = 0.07 # Gripper base top  depth
-        p_pg = space # Safespace gripper base top depth
-
-        y_pg = l_pg/2 + m_pg if (l_pg/2 + m_pg) >  (o_pg/2 + p_pg) else (o_pg/2 + p_pg) # Gripper Bounding box depth
-
-
+# For unit change from mm to m
 # MM_TO_M = 0.001
 
 # def load_yaml_in_m(filepath):
@@ -80,7 +38,9 @@ class parallel_gripper:
 #     return data_m
 
 # # mm to m
-# params = load_yaml_in_m(r"D:\Codecouldcode\099.MA_Hanyu\01_project\gripper_parameter\Franka.yaml")
+# params = load_yaml_in_m(r"gripper_parameter\Franka.yaml")
+
+
 
 with open(r"gripper_parameter\Franka.yaml", "r", encoding="utf-8") as f:
     params = yaml.safe_load(f)
@@ -153,9 +113,9 @@ tilt_symbol_finger_end_length = 8
 plt_graphic_padding = 10
 contour_image_padding = 10
 
-#********* image console ****************
+#********* image options ****************
 no_image = False
-essential_image_only = False
+essential_image_only = True
 no_skip = True
 
 show_all_planes_and_normals = False
@@ -199,7 +159,7 @@ if essential_image_only:
     show_plt_contour_P2_2d = True
     show_P2_contour_3d = True
     show_plt_all_tcp_grids = True
-    show_plt_TCP_each_edge = True 
+    show_plt_TCP_each_edge = True
     show_plt_bounding_boxes = False
     show_plt_contours_Px_2d = True
     show_P_contour_3d = True
@@ -416,7 +376,7 @@ def find_source_part_of_missing_points(missing_points_indices, part_ids_assembly
             print(f"Part {i+1} missing over 30% of points, Do TCP Detection for it.")
             detect_target_list.append(i)
     if len(detect_target_list) == 0:
-        print("No Part need to be repaired.")
+        print("No Part need to be replaced.")
         exit()
     return detect_target_list
 #****************
@@ -469,13 +429,17 @@ visualize_regis_and_miss_pts_result(pcd_assembly, actual_pcd, missing_point_indi
 
 detect_target_list = find_source_part_of_missing_points(missing_point_indices, part_ids_assembly, pcd_parts_list,miss_perc_thresh)
 
+#***************************************************************************
+# for part in detect_target_list:
+#     pcd_target = pcd_parts_list[part]
 
-# for xxx in detect_target_list:
-#     pcd_target = pcd_parts_list[xxx]
+# All the following code is for TCP detection for one damaged part.
+# The following code should be performed once for each part listed in detect_target_list.
+# Here we set "part = 2", Using "Wall with acor logo" as an example, the code will only execute once for this part to show the result.
+# To perform TCP detection for all damaged parts, tthe following code should be added to the for loop above.
 
-# Using Wall with acor logo as an example
-xxx = 2
-pcd_target = pcd_parts_list[xxx]
+part = 2
+pcd_target = pcd_parts_list[part]
 
 #***************** Find the Points on the Scanned Part that are Close to the Target Part ******************
 
@@ -857,10 +821,9 @@ for count, (i, j) in enumerate(paired_planes):
 
 #---------------Find center plane---------------
 
-# iii=11
+
 counter = 0
 for iii in range(len(paired_planes)):
-# for iii in range(2,3):
     counter+=1  
     print(f"\n\n----------------------------------------\n-------- Processing pair: {counter}/{len(paired_planes)} --------\n----------------------------------------")
 
@@ -1058,7 +1021,7 @@ for iii in range(len(paired_planes)):
     proj_pcd_p2_unfilter.points = o3d.utility.Vector3dVector(projected_points_p2)
     proj_pcd_p2_unfilter.paint_uniform_color([1, 0, 0])
 
-    proj_pcd_p2,ind_p2 = remove_pcd_outlier_dbscan(proj_pcd_p2_unfilter)
+    proj_pcd_p2,ind_p2 = remove_pcd_outlier_statistical(proj_pcd_p2_unfilter,20, 1.0)
     projected_points_p2 = np.asarray(proj_pcd_p2.points)
 
     colors = np.ones((len(proj_pcd_p2_unfilter.points), 3)) * [1,1,0]
@@ -1099,7 +1062,7 @@ for iii in range(len(paired_planes)):
     proj_pcd_p3_unfilter.points = o3d.utility.Vector3dVector(projected_points_p3)
     # proj_pcd_p3_unfilter.paint_uniform_color([0, 0, 1])
 
-    proj_pcd_p3,ind_p3 = remove_pcd_outlier_dbscan(proj_pcd_p3_unfilter)
+    proj_pcd_p3,ind_p3 = remove_pcd_outlier_statistical(proj_pcd_p3_unfilter,50,2.0)
     projected_points_p3 = np.asarray(proj_pcd_p3.points)
 
 
@@ -1158,7 +1121,7 @@ for iii in range(len(paired_planes)):
     proj_pcd_p4_unfilter.points = o3d.utility.Vector3dVector(projected_points_p4)
     # proj_pcd_p4_unfilter.paint_uniform_color([0, 0, 1])  
 
-    proj_pcd_p4,ind_p4 = remove_pcd_outlier_dbscan(proj_pcd_p4_unfilter)
+    proj_pcd_p4,ind_p4 = remove_pcd_outlier_statistical(proj_pcd_p4_unfilter,50,3.0)
     projected_points_p4 = np.asarray(proj_pcd_p4.points)
 
 
@@ -1883,6 +1846,8 @@ for iii in range(len(paired_planes)):
             line_set.lines = o3d.utility.Vector2iVector(lines)
             line_set.colors = o3d.utility.Vector3dVector(colors)
 
+            linesets.append(line_set)
+
         # Original point cloud color setting for observation
         pcd.paint_uniform_color([0.6, 0.6, 0.6])
 
@@ -1904,11 +1869,6 @@ for iii in range(len(paired_planes)):
     # plane_contour_polygon_list = [polygon_p1,polygon_p2,polygon_p3,polygon_p4]
 
     #********************** Loop Find feasible TCP *********************
-    from shapely.validation import explain_validity, make_valid   # Shapely>=2.0
-    from shapely import set_precision
-    from shapely.geometry import Polygon, Point
-    from shapely.errors import GEOSException
-    from shapely.ops import unary_union
     GRID_SIZE = 1e-9
 
     def _clean_geom(geom, name=""):
