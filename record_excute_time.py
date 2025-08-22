@@ -5,8 +5,8 @@ import os
 import runpy
 
 # ===== Configuration =====
-TARGET_SCRIPT = r"D:\Codecouldcode\099.MA_Hanyu\01_project\plane_segmentation_edge_optimize_loop.py"          # Path to the script you want to profile
-OUTPUT_STATS_FILE = "profile_results_whole_object_no_plot_bumped_cube_100k.txt" # Output file for profiling results
+TARGET_SCRIPT = r"main_script.py"          # Path to the script you want to profile
+OUTPUT_STATS_FILE = "profile_results_execution_time.txt" # Output file for profiling results
 SHOW_TOP = 20                              # Show only the top N most time-consuming custom functions
 # =========================
 
