@@ -18,7 +18,12 @@ The code is intended to reproduce the experiments, figures, and results presente
 - Dependencies: listed in "environment.yml"  
 
 ## Usage
-Run the main script "main_script.py" in a environment with the dependencies from "environment.yml"
+1. Create the conda environment from the provided `environment.yml` file: 
+conda env create -f environment.yml
+2. Activate the environment: 
+conda activate <myproject>
+3. Run the main script: 
+python main_script.py
 
 ## Data Availability
 A subset of the dataset is provided under "Test_part/Verification_examples/" for demonstration purposes.
