@@ -17,7 +17,7 @@ from shapely.validation import explain_validity, make_valid   # Shapely>=2.0
 from shapely import set_precision
 from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
-
+import os
 
 
 # -------------------- Define the gripper ----------------
@@ -396,7 +396,6 @@ pcd_paths = [
 
 
 pcd_assembly,points_assembly,colors_assembly,part_ids_assembly,pcd_parts_list = merge_part_pcd(pcd_paths)
-# model_pcd = load_point_cloud(r"D:\Codecouldcode\099.MA_Hanyu\Object\Verification_examples\New_version\combined.pcd")
 actual_pcd = load_point_cloud(r"Test_part\Verification_examples\Scanned_pcd.pcd")
 
 actual_pcd.scale(0.001, np.array([0, 0, 0]))  #Scale
@@ -1071,32 +1070,6 @@ for iii in range(len(paired_planes)):
     proj_pcd_p3_unfilter.colors = o3d.utility.Vector3dVector(colors)
 
 
-    # sphere1 = o3d.geometry.TriangleMesh.create_sphere(radius=0.005)
-    # sphere1.paint_uniform_color([1, 1, 0])  
-    # sphere1.translate(center_i)
-
-    # sphere2 = o3d.geometry.TriangleMesh.create_sphere(radius=0.005)
-    # sphere2.paint_uniform_color([1, 1, 0])  
-    # sphere2.translate(center_j)
-
-    # sphere3 = o3d.geometry.TriangleMesh.create_sphere(radius=0.005)
-    # sphere3.paint_uniform_color([0, 1, 1]) 
-    # sphere3.translate(center_i_outside)
-
-    # sphere4 = o3d.geometry.TriangleMesh.create_sphere(radius=0.005)
-    # sphere4.paint_uniform_color([1, 0, 1])  
-    # sphere4.translate(center_j_outside)
-
-    # aaaa = o3d.geometry.PointCloud()
-    # aaaa.points = o3d.utility.Vector3dVector(np.array(points_between_outside_i+0.0001))
-    # aaaa.paint_uniform_color([1, 0, 1])
-    # bbbb = o3d.geometry.PointCloud()
-    # bbbb.points = o3d.utility.Vector3dVector(np.array(points_between_outside_j+0.0001))
-    # bbbb.paint_uniform_color([0, 1, 1])
-    # o3d.visualization.draw_geometries([pcd,aaaa,bbbb])
-
-    # o3d.visualization.draw_geometries([candidate_TCP_pcd, proj_pcd_outside,sphere1,sphere2,sphere3,sphere4])
-
     if no_image == False:
         if show_proj_pts_p3 == True:
             o3d.visualization.draw_geometries([overlap_pcd, proj_pcd_p3_unfilter.translate([0,0,0.0001])],window_name="Initial TCP & Finger Collision Area (P3)")
@@ -1105,8 +1078,6 @@ for iii in range(len(paired_planes)):
 
     center_i_p4 = center_ij + (y_pg/2) * (plane_normals[mmm]) * dist_dir_i
     center_j_p4 = center_ij + (y_pg/2) * (plane_normals[nnn]) * dist_dir_j
-    # center_i_p3 = center_ij + (0.02) * (plane_normals[mmm]) * dist_dir_i
-    # center_j_p3 = center_ij + (0.02) * (plane_normals[nnn]) * dist_dir_j
 
 
     points_between_p4_i,points_beside = select_points_between_planes(points_beside, center_i_p3, center_i_p4, plane_normals[mmm],margin=margin_points_between_planes)
@@ -1484,7 +1455,8 @@ for iii in range(len(paired_planes)):
         ax.grid(True)
         ax.legend()
         plt.tight_layout()
-        plt.savefig(f"D:\\Codecouldcode\\099.MA_Hanyu\\01_project\\image\\possible_tcp_all.svg", format='svg', bbox_inches='tight')
+        os.makedirs("Image", exist_ok=True)
+        plt.savefig(f"Image\\possible_tcp_all.svg", format='svg', bbox_inches='tight')
         plt.show()
 
 
@@ -1556,7 +1528,8 @@ for iii in range(len(paired_planes)):
             ax.grid(True)
             ax.legend()
             plt.tight_layout()
-            plt.savefig(f"D:\\Codecouldcode\\099.MA_Hanyu\\01_project\\image\\possible_tcp_edge_{i+1}.svg", format='svg', bbox_inches='tight')
+            os.makedirs("Image", exist_ok=True)
+            plt.savefig(f"Image\\possible_tcp_edge_{i+1}.svg", format='svg', bbox_inches='tight')
             plt.show()
     if no_image == False:
         if show_plt_TCP_each_edge == True:
@@ -1803,6 +1776,8 @@ for iii in range(len(paired_planes)):
         plt.imshow(img_contours)
         plt.title('Contour Dectection Result: '+ plane_name)
         plt.axis('off')
+        os.makedirs("Image", exist_ok=True)
+        plt.savefig(f"Image\\Coutour_{plane_name}.svg", format='svg', bbox_inches='tight')
         if no_image == False and show_plt_contours_Px_2d == True:
             plt.show()
         else:
@@ -1965,10 +1940,7 @@ for iii in range(len(paired_planes)):
                 if  condition_1 and condition_2 and condition_3 and condition_4 and condition_5:
                     filtered_segment.append(shape)
                     feasible_point.append(pt)
-                    intersection_areas.append(total_intersection_areas)
-                # if condition_1 :
-                #     filtered_segment.append(shape)
-                #     point_1.append(pt)                
+                    intersection_areas.append(total_intersection_areas)             
 
             filtered_shapes.append(filtered_segment)
             feasible_points_on_edge.append(feasible_point)
@@ -1977,7 +1949,6 @@ for iii in range(len(paired_planes)):
 
 
     feasible_TCP_and_shapes,feasible_TCP,intersection_areas = find_feasible_tcp(plane_contour_polygon_list,points_and_gripper_bounding_box)
-    # feasible_TCP = [shape['point'] for segment in feasible_TCP_and_shapes for shape in segment]
 
 
 
@@ -2011,32 +1982,6 @@ for iii in range(len(paired_planes)):
             area_scores.append(s)
         return area_scores
 
-
-    # def get_center_score(TCP_points, center_pcd, dir1, dir2, center):
-    #     """
-    #     For each segment i, returns a list of center-based scores (one per feasible TCP point).
-    #     Closer to the projected center => higher score (normalized to [0,1]).
-    #     """
-    #     center_pcd = np.asarray(center_pcd, dtype=float)
-    #     center = np.asarray(center, dtype=float)
-    #     # project the 3D center into the same 2D basis as TCP_points
-    #     basis = np.vstack([dir1, dir2]).T  # shape (3,2) or (2,2) depending on your setup
-    #     center_local = np.dot(center_pcd - center, basis)
-
-    #     center_scores = []
-    #     eps = 1e-12
-    #     for pts in TCP_points:
-    #         if not pts:                 # no feasible points on this segment
-    #             center_scores.append([])
-    #             continue
-    #         pts_np = np.asarray(pts, dtype=float).reshape(-1, 2)
-    #         d = np.linalg.norm(pts_np - center_local, axis=1)
-    #         if d.max() - d.min() < eps:
-    #             scores = np.ones_like(d)      # all same distance -> give all 1.0
-    #         else:
-    #             scores = 1.0 - (d - d.min()) / (d.max() - d.min())
-    #         center_scores.append(scores.tolist())
-    #     return center_scores
 
     def get_center_score(TCP_points, center_pcd):
 
@@ -2124,14 +2069,6 @@ for iii in range(len(paired_planes)):
                     normal_clockwise_90 = [vec_12[1], -vec_12[0]]
                     normal_clockwise_90 = normal_clockwise_90 / np.linalg.norm(normal_clockwise_90)
 
-                    #parallel symbol
-                    # start_point_line = mid - normal_clockwise_90 * 0.026
-                    # end_point_line = start_point_line + normal_clockwise_90 * 0.015
-                    # end_point_base1 = end_point_line + vec_12 * 0.005
-                    # end_point_base2 = end_point_line - vec_12 * 0.005
-                    # end_point_finger1 = end_point_base1 + normal_clockwise_90 * 0.008
-                    # end_point_finger2 = end_point_base2 + normal_clockwise_90 * 0.008
-
                     #tilt symbol
                     start_point_line = mid - normal_clockwise_90 * tilt_symbol_start_dist
                     end_point_line = start_point_line + normal_clockwise_90 * tilt_symbol_handle_length
@@ -2153,8 +2090,6 @@ for iii in range(len(paired_planes)):
 
             # Current TCP: Green
             pt = np.array(pt).reshape(-1, 2)
-            # print(pt.shape)          # dim
-            # print(pt.ndim)
             if pt.size:
                 scores_i = np.array(TCP_rank[i], dtype=float)  # (Ni,)
                 if scores_i.shape[0] != pt.shape[0]:
@@ -2164,9 +2099,6 @@ for iii in range(len(paired_planes)):
                     scores_i = scores_i[:m]
                 # ax.plot(pt[:,0], pt[:,1],linestyle='None', marker='x', color='lime', label='Feasible TCP Point')
                 scatter = plt.scatter(pt[:, 0], pt[:, 1], c=scores_i, cmap='RdYlGn',vmin=0, vmax=1, s=5, label='Feasible TCP Point')
-                # cbar = plt.colorbar(scatter, ax=ax, label='Score', fraction=0.046, pad=0.04)
-                # cbar.set_ticks([0.0, 0.5, 1.0])  # min,middle,max
-                # cbar.set_ticklabels([f"0.0", f"0.5", f"1.0"])
 
                 divider = make_axes_locatable(ax)
                 cax = divider.append_axes("right", size="5%", pad=0.3)
@@ -2189,7 +2121,8 @@ for iii in range(len(paired_planes)):
             ax.grid(True)
             ax.legend()
             plt.tight_layout()
-            plt.savefig(f"D:\\Codecouldcode\\099.MA_Hanyu\\01_project\\image\\feasible_tcp_edge_{i+1}.svg", format='svg', bbox_inches='tight')
+            os.makedirs("Image", exist_ok=True)
+            plt.savefig(f"Image\\feasible_tcp_edge_{i+1}.svg", format='svg', bbox_inches='tight')
             plt.show()
 
     if no_image == False:
@@ -2298,7 +2231,8 @@ for iii in range(len(paired_planes)):
         ax.grid(True, linestyle='--', alpha=0.4)
         ax.legend(loc='best')
         plt.tight_layout()
-        plt.savefig(f"D:\\Codecouldcode\\099.MA_Hanyu\\01_project\\image\\feasible_tcp_all_2d.svg", format='svg', bbox_inches='tight')
+        os.makedirs("Image", exist_ok=True)
+        plt.savefig(f"Image\\feasible_tcp_all_2d.svg", format='svg', bbox_inches='tight')
         plt.show()
 
     if no_image == False:
@@ -2307,13 +2241,6 @@ for iii in range(len(paired_planes)):
 
 
     def show_feasible_tcp_in_3d(TCP_3d, TCP_rank, segments_3d_para, pcd_pa, pcd_pb, pcd):
-        
-        # for pts in TCP_3d:
-        #     if len(pts) == 0:
-        #         print("No feasible TCP found to show in 3D!")
-        #         return
-        #     else:
-        #         continue
 
         line_segments_3d,line_indices = segments_3d_para
 
@@ -2328,13 +2255,6 @@ for iii in range(len(paired_planes)):
         line_set.points = o3d.utility.Vector3dVector(np.asarray(line_segments_3d, dtype=float))
         line_set.lines = o3d.utility.Vector2iVector(np.asarray(line_indices, dtype=np.int32))
         line_set.colors = o3d.utility.Vector3dVector(blue)
-
-        
-        # TCP_3d = np.asarray(TCP_3d, dtype=float)
-        # TCP_rank = np.asarray(TCP_rank, dtype=float)
-
-        # TCP_3d_flat = np.vstack(TCP_3d)
-        # TCP_rank_flat = np.vstack(TCP_rank)
 
         TCP_3d_flat = [p for group in TCP_3d for p in group]
         TCP_rank_flat = [r for group in TCP_rank for r in group]
