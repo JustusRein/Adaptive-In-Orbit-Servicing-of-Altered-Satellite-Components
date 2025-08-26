@@ -1,4 +1,6 @@
-# README
+# Adaptive In-Orbit Servicing of Altered Satellite Components
+
+<a href="https://doi.org/10.5281/zenodo.16947438 "><img src="https://zenodo.org/badge/1038437832.svg" alt="DOI"></a>
 
 ## Project Overview
 This repository contains the code accompanying the paper:
