@@ -11,8 +11,10 @@ The code is intended to reproduce the experiments, figures, and results presente
 ## Repository Structure
 - "Test_part/Verification_examples/" – Input datasets and Output figures
 - "gripper_paramters/" – Parameter set for the used grippers and robot arms
-- "main_script.py" – Main script  
 - "environment.yml" – Configuration file
+- "main_script.py" – Main script  
+- "record_excute_time.py" – records the runtime of the main_script.py
+- "step2clustered_pcd.py" – converts a step file to a clustered point cloud with one cluster per part in the assembly (currently hardcoded because the location and rotation from step file is not imported)    
 
 ## Requirements
 - Dependencies: listed in "environment.yml"  
@@ -22,6 +24,8 @@ The code is intended to reproduce the experiments, figures, and results presente
 conda env create -f environment.yml
 2. Activate the environment: 
 conda activate <myproject>
+2.1. If required a clustered pcd can be generated using the "step2clustered_pcd.py":
+python step2clustered_pcd.py
 3. Run the main script: 
 python main_script.py
 

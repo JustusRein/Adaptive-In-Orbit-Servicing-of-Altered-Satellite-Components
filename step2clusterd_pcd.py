@@ -6,7 +6,7 @@ import trimesh
 import random
 import copy
 
-# Deine Bauteile mit Position + Rotation
+# Define components with position + rotation
 components = {
     "01_Bottom_CubeSat_MODEL": {"position": [94.08, 150.34, 54.14], "rotation": [0.0, 0.0, 0.0, 1.0]},
     "03_Board_Empty": {"position": [44.08, 111.64, 98.74], "rotation": [180.0, 0.0, 0.71, 0.71]},
@@ -17,23 +17,23 @@ components = {
     "PLCM_Logo": {"position": [32.24, -6.33, 66.28], "rotation": [0.0, 0.0, 1.0, 0.0]},
 }
 
-# Unterbaugruppen: Name → Liste von Teilen
+# Subassemblies: name → list of parts
 subassemblies = {
     "02_wall_with_PLCM_logo_plcm": ["02_Wall_no_Logo", "PLCM_Logo"]
 }
 
-# Alle Kinder von Unterbaugruppen
+# All children of subassemblies
 components_in_subassemblies = set()
 for comps in subassemblies.values():
     components_in_subassemblies.update(comps)
 
-# Hilfsfunktion: STEP → Punktwolken
+# Helper function: STEP → point clouds
 def step_to_point_clouds(step_path, num_points=5000):
     scene = trimesh.load(step_path, file_type="step")
     if not isinstance(scene, trimesh.Scene):
-        raise RuntimeError("❌ STEP konnte nicht als Szene geladen werden.")
+        raise RuntimeError("❌ STEP could not be loaded as a scene.")
     if len(scene.geometry) == 0:
-        raise RuntimeError("❌ Keine Geometrien in STEP-Datei gefunden.")
+        raise RuntimeError("❌ No geometries found in STEP file.")
 
     pcs = {}
     for name, geom in scene.geometry.items():
@@ -50,7 +50,7 @@ def step_to_point_clouds(step_path, num_points=5000):
         pcs[name] = pcd
     return pcs
 
-# Transformationen
+# Transformations
 def create_transform_matrix(rotation, position):
     position = np.array(position, dtype=float) / 1000.0  # mm → m
     angle_deg, ax, ay, az = rotation
@@ -86,12 +86,12 @@ def apply_subassembly_transform(pcd, parent_rotation, parent_position, local_rot
     pcd.transform(M_total)
     return pcd
 
-# Hilfsfunktion zum Speichern von PLY + PCD
+# Helper function to save PLY + PCD
 def save_point_clouds(pcd, path_base):
     o3d.io.write_point_cloud(path_base + ".ply", pcd)
     o3d.io.write_point_cloud(path_base + ".pcd", pcd)
 
-# Clusterfarben verwalten
+# Manage cluster colors
 cluster_colors = {}
 def get_cluster_color(name):
     if name not in cluster_colors:
@@ -99,15 +99,15 @@ def get_cluster_color(name):
     return cluster_colors[name]
 
 def main():
-    parser = argparse.ArgumentParser(description="STEP → Punktwolken mit Transformationen")
-    parser.add_argument("--input", default="input/assembly.step", help="Eingabe STEP-Datei")
-    parser.add_argument("--output_dir", default="output", help="Ordner für Punktwolken")
-    parser.add_argument("--num_points", type=int, default=5000, help="Anzahl Sample-Punkte pro Teil")
+    parser = argparse.ArgumentParser(description="STEP → Point clouds with transformations")
+    parser.add_argument("--input", default="Test_part/assembly.step", help="Input STEP file")
+    parser.add_argument("--output_dir", default="output", help="Directory for point clouds")
+    parser.add_argument("--num_points", type=int, default=5000, help="Number of sample points per part")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    print("Konvertiere STEP zu Einzel-Punktwolken…")
+    print("Converting STEP to individual point clouds…")
     try:
         pcs = step_to_point_clouds(args.input, args.num_points)
     except RuntimeError as e:
@@ -140,7 +140,7 @@ def main():
                 combined += pcd
                 geometries.append(pcd)
 
-        # Einzelteil speichern (falls nicht in Subassembly)
+        # Save single part (if not in subassembly)
         if comp_name in pcs and comp_name not in components_in_subassemblies:
             pcd = copy.deepcopy(pcs[comp_name])
             apply_transform(pcd, transform["rotation"], transform["position"])
@@ -153,15 +153,15 @@ def main():
             combined += pcd
             geometries.append(pcd)
 
-    # Kombinierte Punktwolke speichern
+    # Save combined point cloud
     out_path_base = os.path.join(args.output_dir, "combined")
     save_point_clouds(combined, out_path_base)
 
-    print(f"👉 Gesamte Punktwolke gespeichert unter: {out_path_base}.ply / .pcd")
-    print("Öffne Open3D Viewer…")
+    print(f"👉 Combined point cloud saved at: {out_path_base}.ply / .pcd")
+    print("Opening Open3D Viewer…")
     o3d.visualization.draw_geometries(
         geometries,
-        window_name="Assembly Point Cloud (Clusterfarben)",
+        window_name="Assembly Point Cloud (Cluster colors)",
         width=1280,
         height=720,
         point_show_normal=False,
