@@ -7,6 +7,7 @@ This repository contains the code accompanying the paper:
 
 **"Adaptive In-Orbit Servicing of Altered Satellite Components"**  
 *Authors: Justus Rein, Christian Plesker, Adrian Reuther, Hanyu Liu, Benjamin Schleich*  
+DOI: <a href="https://doi.org/10.30844/I4SE.25.6.10">
 
 The code is intended to reproduce the experiments, figures, and results presented in the publication.  
 
