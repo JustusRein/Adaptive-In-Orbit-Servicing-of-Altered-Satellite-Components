@@ -29,9 +29,9 @@ from shapely.geometry import MultiPolygon
 
 #**************** path catalog **************
 
-pcd_path = Path("JMS/Object/gcode based model.pcd")
+pcd_path = Path("Object/assembly_scan.ply")
 
-gripper_path = Path("JMS/gripper_parameter/Franka.yaml")
+gripper_path = Path("gripper_parameter/Franka.yaml")
 
 npz_load_path = Path("")
 
@@ -43,7 +43,7 @@ plane_angle_thresh = 5.0
 offset_thresh = 2.0
 
 min_remaining_points = 100
-min_points_per_plane = 80 # small plane filter threshold
+min_points_per_plane = 20 # small plane filter threshold (80)
 
 distance_threshold = 0.1     # plane fitting error
 max_planes = 200              # maximum number of planes to detect (can be increased)

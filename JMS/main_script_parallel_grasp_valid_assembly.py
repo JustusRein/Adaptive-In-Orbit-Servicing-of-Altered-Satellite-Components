@@ -29,10 +29,10 @@ from shapely.geometry import MultiPolygon
 
 #**************** path catalog **************
 
-pcd_path = Path("JMS/Object/Pointlcloud clustered Vulkan subassembly/M12-Nut.pcd")
-pcd_path_surround= Path("JMS/Object/Pointlcloud clustered Vulkan subassembly/2141302 - TRAVA DA ALAVANCA FEHD-II - PART 1.f3d.pcd")
+pcd_path = Path("Object/unknown_3.pcd")
+pcd_path_surround= Path("Object/unknown_0.pcd")
 
-gripper_path = Path("JMS/gripper_parameter/Franka.yaml")
+gripper_path = Path("gripper_parameter/Franka.yaml")
 
 npz_load_path = Path("")
 

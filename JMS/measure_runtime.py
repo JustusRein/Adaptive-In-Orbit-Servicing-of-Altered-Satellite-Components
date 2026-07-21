@@ -6,8 +6,8 @@ import runpy
 from datetime import datetime
 
 # ===== Configuration =====
-TARGET_SCRIPT = r"JMS/main_script_parallel_grasp_valid_save_candidate_pt.py"
-N_RUNS = 45                               # Number of runs
+TARGET_SCRIPT = r"main_script_parallel_grasp_valid_save_candidate_pt.py"
+N_RUNS = 500                               # Number of runs
 OUTPUT_DIR = os.path.join("results", "runtime_record")
 SHOW_TOP = 20                              # Show only the top N most time-consuming custom functions
 # =========================
