@@ -43,7 +43,7 @@ plane_angle_thresh = 5.0
 offset_thresh = 2.0
 
 min_remaining_points = 100
-min_points_per_plane = 20 # small plane filter threshold (80)
+min_points_per_plane = 100 # small plane filter threshold (80)
 
 distance_threshold = 0.1     # plane fitting error
 max_planes = 200              # maximum number of planes to detect (can be increased)
@@ -62,6 +62,8 @@ spacing_edge_normal_factor = 1/3
 
 gss_w1 = 0.5
 gss_w2 = 0.5
+
+roughness_tolerance = 1.0 # compensate surface roughness of real pointcloud
 
 #********* image console ****************
 no_image = True # running without image compute
@@ -1016,8 +1018,8 @@ for iii in range(len(paired_planes)):
     #**************************** Plane 3: find within finger width collision area ****************************
 
 
-    center_i_p3 = center_i + (a_pg + w_pg + v_pg) * (plane_normals[mmm]) * dist_dir_i
-    center_j_p3 = center_j + (a_pg + w_pg + v_pg) * (plane_normals[nnn]) * dist_dir_j
+    center_i_p3 = center_i + (a_pg + w_pg + v_pg - roughness_tolerance) * (plane_normals[mmm]) * dist_dir_i
+    center_j_p3 = center_j + (a_pg + w_pg + v_pg - roughness_tolerance) * (plane_normals[nnn]) * dist_dir_j
     # center_i_p3 = center_ij + (0.02) * (plane_normals[mmm]) * dist_dir_i
     # center_j_p3 = center_ij + (0.02) * (plane_normals[nnn]) * dist_dir_j
 
